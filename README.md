@@ -9,7 +9,7 @@
 
   *Co je potřeba?*
   
-- 1x **ESP32**
+- 1x [**ESP32**](https://dratek.cz/arduino/1581-esp-32s-esp32-esp8266-development-board-2.4ghz-dual-mode-wifi-bluetooth-antenna-module.html?_gl=1*s3cekh*_up*MQ..&gclid=CjwKCAjwupGyBhBBEiwA0UcqaH6J5DjgpT64NVNzaj-crNZk7CDaJllbJJJvBpg1rio_UimbY8WeMBoCJT8QAvD_BwE)
 - 1x [**Joystick s měřením analogové hodnoty X a Y**](https://dratek.cz/arduino/884-joystick-ps2.html?gad_source=1&gclid=CjwKCAjwupGyBhBBEiwA0UcqaH6J5DjgpT64NVNzaj-crNZk7CDaJllbJJJvBpg1rio_UimbY8WeMBoCJT8QAvD_BwE) 
 - 12x **Drátků (4x [Samice](https://dratek.cz/arduino/1214-40-x-m-f-dupont-kabel-20-cm.html?_gl=1*56f225*_up*MQ..&gclid=CjwKCAjwupGyBhBBEiwA0UcqaH6J5DjgpT64NVNzaj-crNZk7CDaJllbJJJvBpg1rio_UimbY8WeMBoCJT8QAvD_BwE), 8x [Samci](https://dratek.cz/arduino/1214-40-x-m-f-dupont-kabel-20-cm.html?_gl=1*56f225*_up*MQ..&gclid=CjwKCAjwupGyBhBBEiwA0UcqaH6J5DjgpT64NVNzaj-crNZk7CDaJllbJJJvBpg1rio_UimbY8WeMBoCJT8QAvD_BwE))** 
 - 4x **[Tlačítka](https://dratek.cz/arduino/51540-sada-25-tlacitek-s-klobouckem-pro-arduino.html?_gl=1*1upvtqs*_up*MQ..&gclid=CjwKCAjwupGyBhBBEiwA0UcqaH6J5DjgpT64NVNzaj-crNZk7CDaJllbJJJvBpg1rio_UimbY8WeMBoCJT8QAvD_BwE)**
@@ -19,7 +19,7 @@
   
 *Zapojení:*
     
-1. Doprostřed nepájivého pole dáme 4 tlačítka libovolných barev a propojíme pravé nožičky s (-) a levé s (+) (použijeme k tomu resistory, ale necháme si mezi tlačítkem a resistorem minimálně 1 pin mezeru)
+1. Doprostřed nepájivého pole dáme 4 tlačítka libovolných barev a propojíme pravé nožičky tlačítek s (-) a levé s (+) (použijeme k tomu resistory, ale necháme si mezi tlačítkem a resistorem minimálně 1 pin mezeru)
 
 <sub>viz. foto:</sub>
 	
@@ -40,9 +40,15 @@
 
 
 ### Finální produkt vypadá nějak takto:
+
+
 ![IMG_8129](https://github.com/vojtamm69/gamepad-esp32/assets/169904042/d5f031df-9cab-44cd-abb3-8e7825c00aca)
 
 ### Po složení stačí dát tento kód do [Arduino IDE](https://www.arduino.cc/en/software), uploadnout a spustit
+
+- Gamepad funguje s Asphalt 8 a ostatními hrami
+- Výsvětlivky jsou v **kódu**
+
 ### Pro kód je potřeba pouze knihovna BLE Gamepad: 
 ![image](https://github.com/vojtamm69/gamepad-esp32/assets/169904042/d0045388-b5fc-4c4d-957b-8fa14dd30e42)
 
@@ -56,13 +62,13 @@
  
 //ABXY TLACITKA:
  
-#define X_BUTTON 26         // A (Pin G26) - Zelena
+#define X_BUTTON 26         // A (Pin G26) - Zeleny tlacitko
  
-#define CIRCLE_BUTTON 25   // B (Pin G25) - Cervena
+#define CIRCLE_BUTTON 25   // B (Pin G25) - Cerveny tlacitko
  
-#define TRIANGLE_BUTTON 33  // Y  (Pin G33) - Zluta 
+#define TRIANGLE_BUTTON 33  // Y  (Pin G33) - Zluty tlacitko 
  
-#define SQUARE_BUTTON 32    // X  (Pin G32) - Modra
+#define SQUARE_BUTTON 32    // X  (Pin G32) - Modry tlacitko
  
  
 // Levý joystick: 
@@ -76,12 +82,9 @@
   #define RIGHT_VRX_JOYSTICK 0
  
   #define RIGHT_VRY_JOYSTICK 0
- 
-  #define NUM_BUTTONS 0
-
 */
 
- 
+//nastaveni tlacitek:
 int buttonsPins[NUM_BUTTONS] = {X_BUTTON, CIRCLE_BUTTON, TRIANGLE_BUTTON, SQUARE_BUTTON,
  
                           R1_BUTTON, R2_BUTTON, L1_BUTTON, L2_BUTTON,
@@ -90,7 +93,8 @@ int buttonsPins[NUM_BUTTONS] = {X_BUTTON, CIRCLE_BUTTON, TRIANGLE_BUTTON, SQUARE
  
                           R3_BUTTON, L3_BUTTON};
  
- 
+//nastaveni pro ruzne zarizeni:
+
 int androidGamepadButtons[NUM_BUTTONS] = {1, 2, 3, 4, 8, 10, 7, 9, 12, 11, 13, 15, 14};
  
 int PS1GamepadButtons[NUM_BUTTONS] = {2, 3, 4, 1, 6, 8, 5, 7, 10, 9, 13, 12, 11};
@@ -120,15 +124,13 @@ typedef enum{ANDROID, PS1, PC} GamepadModes;
 GamepadModes gamepadMode = ANDROID;
  
  
-BleGamepad bleGamepad("Maker101 Gamepad", "Maker101 Home");
+BleGamepad bleGamepad("Android Gamepad", "ESP32 Home");
  
 BleGamepadConfiguration bleGamepadConfig;  
  
- 
+// Setup kod:
 void setup() {
- 
-  // Setup kod:
- 
+
   delay(1000);
  
   Serial.begin(115200);
@@ -152,10 +154,10 @@ void setup() {
   bleGamepad.begin(&bleGamepadConfig);
  
 }
- 
+
+// Hlavní část kodu která se bude opakovat: 
+
 void loop() {
- 
-  // Hlavní část kodu která se bude opakovat:
  
   if(bleGamepad.isConnected()){
  
@@ -256,7 +258,7 @@ void loop() {
   }
  
 }
- 
+//nastaveni pro telefon: 
 void joysticksHandlerForMobile(uint16_t leftVrx, uint16_t leftVry, uint16_t rightVrx, uint16_t rightVry){
  
   bleGamepad.setLeftThumb(leftVrx, leftVryJoystickValue);
@@ -264,7 +266,7 @@ void joysticksHandlerForMobile(uint16_t leftVrx, uint16_t leftVry, uint16_t righ
   bleGamepad.setRightThumb(rightVrxJoystickValue, rightVryJoystickValue);  
  
 }
- 
+//nastaveni pro PC:
 void joysticksHandlerForPC(uint16_t leftVrx, uint16_t leftVry, uint16_t rightVrx, uint16_t rightVry){
  
   bleGamepad.setX(leftVrxJoystickValue);
